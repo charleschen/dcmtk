@@ -20,6 +20,8 @@ config/autom4te.cache/
 # Ignore all temporary and log files
 *.tmp
 *.log
+*~
+*.swp
 
 # Patch files
 *.patch

@@ -168,7 +168,7 @@ int main (int argc, char *argv[])
                     hdl.makeNewStoreFileName (sclass, sinst, fname) ;
                     OFLOG_DEBUG(dcmqridxLogger, "DB_Module recommends " << fname << " for filename");
 #endif
-                    hdl.storeRequest(sclass, sinst, opt_imageFile, &status, opt_isNewFlag) ;
+                    hdl.storeRequest(sclass, sinst, opt_imageFile, &status, opt_isNewFlag, OFTrue) ;
                 } else
                     OFLOG_ERROR(dcmqridxLogger, "cannot load dicom file: " << opt_imageFile);
             }
@@ -178,6 +178,7 @@ int main (int argc, char *argv[])
             COUT << "-- DB Index File --" << OFendl;
             hdl.printIndexFile(OFconst_cast(char *, opt_storageArea));
         }
+	      hdl.syncToDisk();
         return 0;
     }
 

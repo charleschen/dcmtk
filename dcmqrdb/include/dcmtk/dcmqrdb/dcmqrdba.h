@@ -85,7 +85,14 @@ public:
       const char *SOPInstanceUID,
       const char *imageFileName,
       DcmQueryRetrieveDatabaseStatus  *status,
-      OFBool     isNew = OFTrue ) = 0;
+      OFBool     isNew = OFTrue,
+      OFBool     isBatched = OFFalse    // HH: an option to allow keeping of pStudyDesc
+      ) = 0;
+
+  /** HH: a cleanup helper function that saves unsaved in-memory data **/
+  virtual OFCondition syncToDisk(
+      void
+      ) = 0;
 
   /** initiate FIND operation using the given SOP class UID (which identifies
    *  the query model) and DICOM dataset containing find request identifiers.

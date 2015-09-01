@@ -77,10 +77,13 @@ enum DVIFhierarchyStatus
 };
 
 /// upper limit for the number of studies per storage area
-#define DB_UpperMaxStudies              500
+#define DB_UpperMaxStudies              32000
 
 /// upper limit for the number bytes per study
-#define DB_UpperMaxBytesPerStudy        0x40000000L
+#define DB_UpperMaxBytesPerStudy        0x7fffffffL
+
+// HH: the number of index items to be stored in the memory
+#define MAX_IDX_REC_BUF                 256    // given sizeof(IdxRecord) == 5168
 
 
 /** This class maintains database handles based on the classical "index.dat" file.
@@ -156,8 +159,15 @@ public:
       const char *SOPInstanceUID,
       const char *imageFileName,
       DcmQueryRetrieveDatabaseStatus  *status,
-      OFBool     isNew = OFTrue );
+      OFBool     isNew = OFTrue,
+      OFBool     isBatched = OFFalse    // HH: an option to allow keeping of pStudyDesc
+      );
   
+  /** HH: save all un-saved data to disk **/
+  OFCondition syncToDisk(
+      void
+      );
+
   /** initiate FIND operation using the given SOP class UID (which identifies
    *  the query model) and DICOM dataset containing find request identifiers. 
    *  @param SOPClassUID SOP class UID of query service, identifies Q/R model
@@ -359,7 +369,7 @@ private:
   int dbmatch (DB_SmallDcmElmt *mod, DB_SmallDcmElmt *elt);
   void makeResponseList(DB_Private_Handle *phandle, IdxRecord *idxRec);
   int matchStudyUIDInStudyDesc (StudyDescRecord *pStudyDesc, char *StudyUID, int maxStudiesAllowed);
-  OFCondition checkupinStudyDesc(StudyDescRecord *pStudyDesc, char *StudyUID, long imageSize);
+  OFCondition checkupinStudyDesc(StudyDescRecord *pStudyDesc, char *StudyUID, long imageSize, bool skipWriting=false);
 
   OFCondition hierarchicalCompare (
       DB_Private_Handle *phandle,
@@ -395,6 +405,12 @@ private:
   /// helper object for file name creation
   OFFilenameCreator fnamecreator;
 
+  // HH: a variable to allow batch processing of storeRequest
+  StudyDescRecord  *g_pStudyDesc;
+
+  // HH: support for batched writing of index
+  IdxRecord *idxRecBuf;
+  int idxRecBufPos;
 };
 
 
